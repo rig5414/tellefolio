@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
 import { Session } from 'next-auth';
+import Link from 'next/link';
 
 interface ExtendedSession extends Session {
   user?: {
@@ -35,7 +36,9 @@ export default async function AdminDashboardPage() {
 
       {/* Add admin navigation here later */}
       <div className="mt-8">
-        <a href="/api/auth/signout" className="text-blue-600 hover:underline">Sign Out</a>
+        <Link href="/api/auth/signout" className="text-blue-600 hover:underline">
+          Sign Out
+        </Link>
       </div>
     </div>
   );
