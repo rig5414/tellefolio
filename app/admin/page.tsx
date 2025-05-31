@@ -4,7 +4,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/config';
 import { redirect } from 'next/navigation';
 import { Session } from 'next-auth';
-import Link from 'next/link';
+import AdminDashboardContent from './AdminDashboardContent';
 
 interface ExtendedSession extends Session {
   user?: {
@@ -28,18 +28,11 @@ export default async function AdminDashboardPage() {
     redirect('/auth/signin');
   }
 
-  return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <h1 className="text-4xl font-bold mb-6 text-gray-800">Admin Dashboard</h1>
-      <p className="text-xl text-gray-600">Welcome, {session.user?.name || session.user?.email}!</p>
-      <p className="mt-4 text-gray-500">This is your secure area to manage projects.</p>
+  // At this point, session.user should be defined due to previous checks
+  if (!session.user) {
+    // Optionally, handle this edge case (should not occur)
+    redirect('/auth/signin');
+  }
 
-      {/* Add admin navigation here later */}
-      <div className="mt-8">
-        <Link href="/api/auth/signout" className="text-blue-600 hover:underline">
-          Sign Out
-        </Link>
-      </div>
-    </div>
-  );
+  return <AdminDashboardContent user={session.user!} />;
 }
