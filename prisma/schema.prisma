@@ -14,23 +14,45 @@ datasource db {
 }
 
 model Project {
-  id                 String    @id @default(uuid())
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  id                 String        @id @default(uuid())
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
   title              String
-  tagline            String?   // Optional short tagline
-  problemStatement   String?   @db.Text // Long text for the problem
+  tagline            String?       // Optional short tagline
+  problemStatement   String?       @db.Text // Long text for the problem
   role               String?
-  processDescription String?   @db.Text
-  solutionOutcome    String?   @db.Text
-  liveLink           String?
-  githubLink         String?
-  mainImageUrl       String?
+  processDescription String?       @db.Text
+  solutionOutcome    String?       @db.Text
   videoUrl           String?
-  keyLearnings       String?   @db.Text
-  technologies       String?   // Store as comma-separated string for now, or JSON if needed later
-  projectStatus      String?   // e.g., "Completed", "In Progress"
-  dateRange          String?   // e.g., "Oct 2024 - April 2025"
-  displayOrder       Int?      @default(0) // For custom ordering on the site
-  isFeatured         Boolean   @default(false) // To highlight top projects
+  keyLearnings       String?       @db.Text
+  projectStatus      String?       // e.g., "Completed", "In Progress"
+  dateRange          String?       // e.g., "Oct 2024 - April 2025"
+  displayOrder       Int?          @default(0) // For custom ordering on the site
+  isFeatured         Boolean       @default(false) // To highlight top projects
+
+  images             ProjectImage[]
+  links              ProjectLink[]
+  technologies       Technology[]
+}
+
+model ProjectImage {
+  id        String   @id @default(uuid())
+  url       String
+  altText   String?
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+}
+
+model ProjectLink {
+  id        String   @id @default(uuid())
+  url       String
+  text      String   // e.g., "Live Site", "GitHub Repo"
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+}
+
+model Technology {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  projects  Project[]
 }
