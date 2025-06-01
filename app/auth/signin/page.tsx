@@ -2,10 +2,9 @@
 
 'use client'; // This component needs to be a client component
 
-import { signIn } from 'next-auth/react';
 import { useState } from 'react';
+import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function SignInPage() {
   const [username, setUsername] = useState('');
@@ -16,131 +15,82 @@ export default function SignInPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null); // Clear previous errors
+    setError(null);
     setIsLoading(true);
 
     try {
       const result = await signIn('credentials', {
-        redirect: false, // Don't redirect automatically
+        redirect: false, // Prevent automatic redirection
         username,
         password,
       });
 
       if (result?.error) {
-        setError('Invalid credentials');
-        console.error('Sign-in error:', result.error);
+        setError(result.error);
       } else if (result?.ok) {
-        router.push('/admin'); // Redirect to the admin panel on success
-        router.refresh(); // Refresh to update session state
+        // Successful sign-in, redirect to admin dashboard
+        router.push('/admin');
       }
     } catch (err) {
-      console.error('Sign-in exception:', err);
-      setError('An unexpected error occurred');
+      setError('An unexpected error occurred.');
+      console.error('Sign-in error:', err);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-light dark:bg-gradient-dark">
-      {/* Theme Toggle */}
-      <div className="absolute top-4 right-4">
-        <ThemeToggle />
-      </div>
-
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8 relative">
-          {/* Glass Card Effect */}
-          <div className="glass dark:glass-dark rounded-xl p-8 animate-fade-in shadow-soft dark:shadow-soft-dark">
-            <div className="text-center">
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                Admin Access
-              </h2>
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                Sign in to manage your portfolio
-              </p>
-            </div>
-
-            <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-              <div className="rounded-md shadow-sm -space-y-px">
-                <div>
-                  <label htmlFor="username" className="sr-only">
-                    Username
-                  </label>
-                  <input
-                    id="username"
-                    name="username"
-                    type="text"
-                    required
-                    className="appearance-none rounded-t-md relative block w-full px-3 py-2
-                      dark:bg-dark-surface border dark:border-gray-700
-                      placeholder-gray-500 dark:placeholder-gray-400
-                      text-gray-900 dark:text-gray-100
-                      focus:outline-none focus:ring-primary-light dark:focus:ring-dark-primary-light
-                      focus:border-primary-light dark:focus:border-dark-primary-light
-                      focus:z-10 sm:text-sm"
-                    placeholder="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="password" className="sr-only">
-                    Password
-                  </label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    required
-                    className="appearance-none rounded-b-md relative block w-full px-3 py-2
-                      dark:bg-dark-surface border dark:border-gray-700
-                      placeholder-gray-500 dark:placeholder-gray-400
-                      text-gray-900 dark:text-gray-100
-                      focus:outline-none focus:ring-primary-light dark:focus:ring-dark-primary-light
-                      focus:border-primary-light dark:focus:border-dark-primary-light
-                      focus:z-10 sm:text-sm"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {error && (
-                <div className="rounded-md bg-red-50 dark:bg-red-900/30 p-4 animate-fade-in">
-                  <div className="flex">
-                    <div className="ml-3">
-                      <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
-                        Error signing in
-                      </h3>
-                      <div className="mt-2 text-sm text-red-700 dark:text-red-300">
-                        <p>{error}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="group relative w-full flex justify-center py-2 px-4 border border-transparent
-                    text-sm font-medium rounded-md text-white
-                    bg-primary hover:bg-primary-dark
-                    dark:bg-dark-primary dark:hover:bg-dark-primary-dark
-                    focus:outline-none focus:ring-2 focus:ring-offset-2
-                    focus:ring-primary dark:focus:ring-dark-primary
-                    transition-colors duration-200
-                    disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isLoading ? 'Signing in...' : 'Sign in'}
-                </button>
-              </div>
-            </form>
-          </div>
+    <div className="flex min-h-screen items-center justify-center bg-gray-100 dark:bg-gray-900 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md space-y-8 bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Sign in to your admin account</h2>
         </div>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="-space-y-px rounded-md shadow-sm">
+            <div>
+              <label htmlFor="username" className="sr-only">Username</label>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                autoComplete="username"
+                required
+                className="relative block w-full appearance-none rounded-none rounded-t-md border border-gray-300 dark:border-gray-700 px-3 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm dark:bg-gray-700"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="sr-only">Password</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                className="relative block w-full appearance-none rounded-none rounded-b-md border border-gray-300 dark:border-gray-700 px-3 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm dark:bg-gray-700"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {error && (
+            <p className="mt-2 text-center text-sm text-red-600 dark:text-red-400">{error}</p>
+          )}
+
+          <div>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 dark:bg-indigo-700 dark:hover:bg-indigo-600 dark:focus:ring-offset-gray-800"
+            >
+              {isLoading ? 'Signing In...' : 'Sign In'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

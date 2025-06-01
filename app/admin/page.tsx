@@ -1,32 +1,23 @@
-// app/admin/page.tsx
-
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/config';
 import { redirect } from 'next/navigation';
-import { Session } from 'next-auth';
-import AdminDashboardContent from './AdminDashboardContent';
-
-interface ExtendedSession extends Session {
-  user?: {
-    id: string;
-    name?: string | null;
-    email?: string | null;
-    image?: string | null;
-  }
-}
+import { authOptions } from '../api/auth/config';
 
 export default async function AdminDashboardPage() {
-  const session = await getServerSession(authOptions) as ExtendedSession;
+  const session = await getServerSession(authOptions);
 
-  // Force redirect to sign-in if no session
-  if (!session?.user) {
+  if (!session) {
     redirect('/auth/signin');
   }
 
-  // Verify specific user based on environment variable
-  if (session.user?.email !== process.env.ADMIN_USERNAME) {
-    redirect('/auth/signin');
-  }
-
-  return <AdminDashboardContent user={session.user} />;
-}
+  // TODO: Fetch and display list of projects
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
+      <p>Welcome to the admin dashboard. Project list will be displayed here.</p>
+      {/* Link to add new project */}
+      <div className="mt-4">
+        <a href="/admin/projects/new" className="text-blue-600 hover:underline">Add New Project</a>
+      </div>
+    </div>
+  );
+} 

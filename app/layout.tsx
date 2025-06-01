@@ -14,7 +14,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: {
     template: "Manasseh's Portfolio - %s",
-    default: 'Tellefolio',
+    default: "Manasseh's Portfolio",
   },
   description: 'Full Stack Engineer & ICT Specialist showcasing innovative projects and technical expertise',
   keywords: ['portfolio', 'web development', 'full stack', 'engineer', 'ICT'],
@@ -33,9 +33,9 @@ export const viewport: Viewport = {
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode
-}) {
+}>) {
   return (
     <html lang="en" suppressHydrationWarning className={inter.variable}>
       <body className="min-h-screen bg-background font-sans antialiased">

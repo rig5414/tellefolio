@@ -1,4 +1,3 @@
-// eslint-disable-next-line sonarqube/css:S4662
 @reference "tailwindcss";
 @import "tailwindcss/preflight";
 @tailwind utilities;
