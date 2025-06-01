@@ -1,40 +1,50 @@
 // app/layout.tsx
 
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google"; // Keep your font imports
-import "./globals.css";
+import './globals.css'
+import type { Metadata, Viewport } from 'next'
+import { Inter } from 'next/font/google'
+import { Providers } from './providers'
 
-import { Providers } from './providers'; // Import the Providers component
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+})
 
 export const metadata: Metadata = {
-  title: "Manasseh's Portfolio",
-  description: "Manasseh Telle: Full Stack Engineer & ICT Specialist",
-};
+  title: {
+    template: "Manasseh's Portfolio - %s",
+    default: 'Tellefolio',
+  },
+  description: 'Full Stack Engineer & ICT Specialist showcasing innovative projects and technical expertise',
+  keywords: ['portfolio', 'web development', 'full stack', 'engineer', 'ICT'],
+  authors: [{ name: 'Telle' }],
+  creator: 'Telle',
+}
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: 'white' },
+    { media: '(prefers-color-scheme: dark)', color: '#0a0a0a' },
+  ],
+  width: 'device-width',
+  initialScale: 1,
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`} // Keep your font classes
-      >
-        <Providers> {/* Wrap children with Providers */}
-          {children}
+    <html lang="en" suppressHydrationWarning className={inter.variable}>
+      <body className="min-h-screen bg-background font-sans antialiased">
+        <Providers>
+          <div className="relative flex min-h-screen flex-col">
+            {children}
+          </div>
         </Providers>
       </body>
     </html>
-  );
+  )
 }

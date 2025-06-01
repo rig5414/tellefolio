@@ -1,10 +1,7 @@
-// app/admin/page.tsx
-
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/config';
 import { redirect } from 'next/navigation';
 import { Session } from 'next-auth';
-import AdminDashboardContent from './AdminDashboardContent';
 
 interface ExtendedSession extends Session {
   user?: {
@@ -15,18 +12,16 @@ interface ExtendedSession extends Session {
   }
 }
 
-export default async function AdminDashboardPage() {
+export default async function AdminProjectsLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const session = await getServerSession(authOptions) as ExtendedSession;
 
-  // Force redirect to sign-in if no session
-  if (!session?.user) {
+  if (!session || session.user?.email !== process.env.ADMIN_USERNAME) {
     redirect('/auth/signin');
   }
 
-  // Verify specific user based on environment variable
-  if (session.user?.email !== process.env.ADMIN_USERNAME) {
-    redirect('/auth/signin');
-  }
-
-  return <AdminDashboardContent user={session.user} />;
+  return <>{children}</>;
 }
