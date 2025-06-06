@@ -7,8 +7,9 @@ import CircularLoader from "@/components/admin/CircularLoader";
 import { ThemeToggle } from "@/components/admin/ThemeToggle";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { Session } from "next-auth";
 
-export default function AdminDashboardClient({ session }: { session: any }) {
+export default function AdminDashboardClient({ session }: { session: Session }) {
   const { resolvedTheme } = useTheme();
   const [showLogout, setShowLogout] = useState(false);
   const router = useRouter();
