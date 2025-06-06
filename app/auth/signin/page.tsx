@@ -1,10 +1,12 @@
 // app/auth/signin/page.tsx
 
-'use client'; // This component needs to be a client component
+'use client';
 
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import CircularLoader from '@/components/admin/CircularLoader';
+import Image from 'next/image';
 
 export default function SignInPage() {
   const [username, setUsername] = useState('');
@@ -17,18 +19,15 @@ export default function SignInPage() {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
-
     try {
       const result = await signIn('credentials', {
-        redirect: false, // Prevent automatic redirection
+        redirect: false,
         username,
         password,
       });
-
       if (result?.error) {
         setError(result.error);
       } else if (result?.ok) {
-        // Successful sign-in, redirect to admin dashboard
         router.push('/admin');
       }
     } catch (err) {
@@ -40,57 +39,85 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 dark:bg-gray-900 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8 bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Sign in to your admin account</h2>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="-space-y-px rounded-md shadow-sm">
-            <div>
-              <label htmlFor="username" className="sr-only">Username</label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                autoComplete="username"
-                required
-                className="relative block w-full appearance-none rounded-none rounded-t-md border border-gray-300 dark:border-gray-700 px-3 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm dark:bg-gray-700"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Blurred Next.js optimized background */}
+      <div className="absolute inset-0 w-full h-full z-0">
+        <Image
+          src="/images/adminbackground.jpg"
+          alt="Admin Background"
+          fill
+          priority
+          className="object-cover blur-md scale-105"
+          style={{ filter: 'blur(8px) brightness(0.7)' }}
+        />
+      </div>
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-[#232b3b]/80 z-0" />
+      {/* Centered loader and form, grouped visually */}
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen">
+        <CircularLoader loading={isLoading}>
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-6 items-center bg-[#232b3b]/80 rounded-2xl p-8 shadow-xl w-full"
+            style={{ boxShadow: '0 0 40px 0 #ffc30044' }}
+          >
+            <h2 className="text-3xl font-bold text-[#FFC300] mb-2 text-center">Login</h2>
+            <div className="w-full flex flex-col gap-4">
+              <div className="relative">
+                <input
+                  id="username"
+                  name="username"
+                  type="text"
+                  autoComplete="username"
+                  required
+                  className="w-full rounded-md bg-[#232b3b] border border-[#444] px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FFC300] text-base pr-10"
+                  placeholder="Username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  disabled={isLoading}
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6zm2 0v.01L12 13l8-6.99V6H4zm16 2.236-7.447 6.51a2 2 0 0 1-2.106 0L4 8.236V18h16V8.236z"/></svg>
+                </span>
+              </div>
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  className="w-full rounded-md bg-[#232b3b] border border-[#444] px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FFC300] text-base pr-10"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M12 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm6-2a6 6 0 1 1-12 0 6 6 0 0 1 12 0zm-6-8a8 8 0 1 0 0 16 8 8 0 0 0 0-16z"/></svg>
+                </span>
+              </div>
             </div>
-            <div>
-              <label htmlFor="password" className="sr-only">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="relative block w-full appearance-none rounded-none rounded-b-md border border-gray-300 dark:border-gray-700 px-3 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm dark:bg-gray-700"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          </div>
-
-          {error && (
-            <p className="mt-2 text-center text-sm text-red-600 dark:text-red-400">{error}</p>
-          )}
-
-          <div>
+            {error && (
+              <p className="text-center text-sm text-red-400">{error}</p>
+            )}
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 dark:bg-indigo-700 dark:hover:bg-indigo-600 dark:focus:ring-offset-gray-800"
+              className="w-full py-3 rounded-md bg-[#FFC300] text-[#232b3b] font-bold text-lg shadow-md transition-all duration-200 hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-[#FFC300] focus:ring-offset-2 disabled:opacity-60"
+              style={{ boxShadow: isLoading ? '0 0 20px 0 #FFC300' : undefined }}
             >
-              {isLoading ? 'Signing In...' : 'Sign In'}
+              {isLoading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-5 w-5 text-[#232b3b]" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="#232b3b" strokeWidth="4" fill="none" /><path className="opacity-75" fill="#232b3b" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" /></svg>
+                  Logging in...
+                </span>
+              ) : (
+                'LOGIN'
+              )}
             </button>
-          </div>
-        </form>
+          </form>
+        </CircularLoader>
       </div>
     </div>
   );

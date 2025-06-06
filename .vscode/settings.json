@@ -1,5 +1,23 @@
 {
-    "cSpell.words": [
-        "morphism"
-    ]
+  "cSpell.words": [
+    "morphism"
+  ],
+  "maven.terminal.customEnv": [
+    {
+      "environmentVariable": "DATABASE_URL",
+      "value": "postgresql://tellefolio_owner:npg_EWsDtJTi84GL@ep-nameless-haze-a2ibbcyz-pooler.eu-central-1.aws.neon.tech/tellefolio?sslmode=require"
+    },
+    {
+      "environmentVariable": "NEXTAUTH_SECRET",
+      "value": "a88baa84b33ba441d90045e9a9234b03f7476243fabcdace813a2332b7a4ba1d"
+    },
+    {
+      "environmentVariable": "ADMIN_USERNAME",
+      "value": "Crut"
+    },
+    {
+      "environmentVariable": "ADMIN_PASSWORD",
+      "value": "Crut@8287."
+    }
+  ]
 }
