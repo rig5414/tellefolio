@@ -37,11 +37,15 @@ export default function NewProjectFormClientV2() {
     'technologies',
   ];
 
-  // Theme-based colors
+  // Theme-based colors and styles
   const bgColor = resolvedTheme === 'light' ? 'bg-blue-100' : 'bg-[#232b3b]';
   const cardBg = resolvedTheme === 'light' ? 'bg-white/90 border border-blue-200' : 'bg-[#232b3b]/90 border border-[#444]';
-  const accent = resolvedTheme === 'light' ? '#2563eb' : '#FFC300';
   const textColor = resolvedTheme === 'light' ? 'text-blue-900' : 'text-gray-200';
+  const inputClass = `mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 sm:text-sm ${
+    resolvedTheme === 'light'
+      ? 'bg-white border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+      : 'bg-[#232b3b] border-[#444] focus:ring-[#FFC300] focus:border-[#FFC300]'
+  }`;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,15 +88,15 @@ export default function NewProjectFormClientV2() {
           <div className="space-y-4">
             <div>
               <label htmlFor="title" className={`block text-sm font-medium ${textColor}`}>Title *</label>
-              <input type="text" name="title" id="title" required className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[${accent}] focus:border-[${accent}] bg-white dark:bg-gray-800 sm:text-sm" value={formData.title} onChange={handleChange} />
+              <input type="text" name="title" id="title" required className={inputClass} value={formData.title} onChange={handleChange} />
             </div>
             <div>
               <label htmlFor="tagline" className={`block text-sm font-medium ${textColor}`}>Tagline</label>
-              <input type="text" name="tagline" id="tagline" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[${accent}] focus:border-[${accent}] bg-white dark:bg-gray-800 sm:text-sm" value={formData.tagline} onChange={handleChange} />
+              <input type="text" name="tagline" id="tagline" className={inputClass} value={formData.tagline} onChange={handleChange} />
             </div>
             <div>
               <label htmlFor="projectStatus" className={`block text-sm font-medium ${textColor}`}>Status</label>
-              <select name="projectStatus" id="projectStatus" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[${accent}] focus:border-[${accent}] bg-white dark:bg-gray-800 sm:text-sm" value={formData.projectStatus} onChange={handleChange}>
+              <select name="projectStatus" id="projectStatus" className={inputClass} value={formData.projectStatus} onChange={handleChange}>
                 <option value="Planning">Planning</option>
                 <option value="In Progress">In Progress</option>
                 <option value="Completed">Completed</option>
@@ -101,7 +105,7 @@ export default function NewProjectFormClientV2() {
               </select>
             </div>
             <div className="flex items-center">
-              <input type="checkbox" name="isFeatured" id="isFeatured" className="h-4 w-4 text-[${accent}] border-gray-300 rounded focus:ring-2 focus:ring-[${accent}] bg-white dark:bg-gray-800 dark:border-gray-700 dark:checked:bg-[${accent}] dark:checked:border-transparent" checked={formData.isFeatured} onChange={handleChange} />
+              <input type="checkbox" name="isFeatured" id="isFeatured" className={`h-4 w-4 rounded focus:ring-2 ${resolvedTheme === 'light' ? 'bg-white border-gray-300 text-blue-500 focus:ring-blue-500' : 'bg-[#232b3b] border-[#444] text-[#FFC300] focus:ring-[#FFC300]'}`} checked={formData.isFeatured} onChange={handleChange} />
               <label htmlFor="isFeatured" className={`ml-2 block text-sm ${textColor}`}>Featured Project</label>
             </div>
           </div>
@@ -112,25 +116,25 @@ export default function NewProjectFormClientV2() {
             <div className="flex flex-col gap-4">
               <div>
                 <label htmlFor="problemStatement" className={`block text-sm font-medium ${textColor}`}>Problem Statement</label>
-                <textarea name="problemStatement" id="problemStatement" rows={4} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[${accent}] focus:border-[${accent}] bg-white dark:bg-gray-800 sm:text-sm" value={formData.problemStatement} onChange={handleChange} />
+                <textarea name="problemStatement" id="problemStatement" rows={4} className={inputClass} value={formData.problemStatement} onChange={handleChange} />
               </div>
               <div>
                 <label htmlFor="role" className={`block text-sm font-medium ${textColor}`}>Role</label>
-                <input type="text" name="role" id="role" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[${accent}] focus:border-[${accent}] bg-white dark:bg-gray-800 sm:text-sm" value={formData.role} onChange={handleChange} />
+                <input type="text" name="role" id="role" className={inputClass} value={formData.role} onChange={handleChange} />
               </div>
               <div>
                 <label htmlFor="keyLearnings" className={`block text-sm font-medium ${textColor}`}>Key Learnings</label>
-                <textarea name="keyLearnings" id="keyLearnings" rows={4} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[${accent}] focus:border-[${accent}] bg-white dark:bg-gray-800 sm:text-sm" value={formData.keyLearnings} onChange={handleChange} />
+                <textarea name="keyLearnings" id="keyLearnings" rows={4} className={inputClass} value={formData.keyLearnings} onChange={handleChange} />
               </div>
             </div>
             <div className="flex flex-col gap-4">
               <div>
                 <label htmlFor="processDescription" className={`block text-sm font-medium ${textColor}`}>Process Description</label>
-                <textarea name="processDescription" id="processDescription" rows={6} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[${accent}] focus:border-[${accent}] bg-white dark:bg-gray-800 sm:text-sm" value={formData.processDescription} onChange={handleChange} />
+                <textarea name="processDescription" id="processDescription" rows={6} className={inputClass} value={formData.processDescription} onChange={handleChange} />
               </div>
               <div>
                 <label htmlFor="solutionOutcome" className={`block text-sm font-medium ${textColor}`}>Solution Outcome</label>
-                <textarea name="solutionOutcome" id="solutionOutcome" rows={4} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[${accent}] focus:border-[${accent}] bg-white dark:bg-gray-800 sm:text-sm" value={formData.solutionOutcome} onChange={handleChange} />
+                <textarea name="solutionOutcome" id="solutionOutcome" rows={4} className={inputClass} value={formData.solutionOutcome} onChange={handleChange} />
               </div>
             </div>
           </div>
@@ -140,19 +144,19 @@ export default function NewProjectFormClientV2() {
           <div className="space-y-4">
             <div>
               <label htmlFor="liveLink" className={`block text-sm font-medium ${textColor}`}>Live Link</label>
-              <input type="url" name="liveLink" id="liveLink" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[${accent}] focus:border-[${accent}] bg-white dark:bg-gray-800 sm:text-sm" value={formData.liveLink} onChange={handleChange} />
+              <input type="url" name="liveLink" id="liveLink" className={inputClass} value={formData.liveLink} onChange={handleChange} />
             </div>
             <div>
               <label htmlFor="githubLink" className={`block text-sm font-medium ${textColor}`}>GitHub Link</label>
-              <input type="url" name="githubLink" id="githubLink" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[${accent}] focus:border-[${accent}] bg-white dark:bg-gray-800 sm:text-sm" value={formData.githubLink} onChange={handleChange} />
+              <input type="url" name="githubLink" id="githubLink" className={inputClass} value={formData.githubLink} onChange={handleChange} />
             </div>
             <div>
               <label htmlFor="mainImageUrl" className={`block text-sm font-medium ${textColor}`}>Main Image URL</label>
-              <input type="url" name="mainImageUrl" id="mainImageUrl" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[${accent}] focus:border-[${accent}] bg-white dark:bg-gray-800 sm:text-sm" value={formData.mainImageUrl} onChange={handleChange} />
+              <input type="url" name="mainImageUrl" id="mainImageUrl" className={inputClass} value={formData.mainImageUrl} onChange={handleChange} />
             </div>
             <div>
               <label htmlFor="videoUrl" className={`block text-sm font-medium ${textColor}`}>Video URL</label>
-              <input type="url" name="videoUrl" id="videoUrl" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[${accent}] focus:border-[${accent}] bg-white dark:bg-gray-800 sm:text-sm" value={formData.videoUrl} onChange={handleChange} />
+              <input type="url" name="videoUrl" id="videoUrl" className={inputClass} value={formData.videoUrl} onChange={handleChange} />
             </div>
           </div>
         );
@@ -161,11 +165,11 @@ export default function NewProjectFormClientV2() {
           <div className="space-y-4">
             <div>
               <label htmlFor="dateRange" className={`block text-sm font-medium ${textColor}`}>Date Range</label>
-              <input type="text" name="dateRange" id="dateRange" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[${accent}] focus:border-[${accent}] bg-white dark:bg-gray-800 sm:text-sm" value={formData.dateRange} onChange={handleChange} />
+              <input type="text" name="dateRange" id="dateRange" className={inputClass} value={formData.dateRange} onChange={handleChange} />
             </div>
             <div>
               <label htmlFor="displayOrder" className={`block text-sm font-medium ${textColor}`}>Display Order</label>
-              <input type="number" name="displayOrder" id="displayOrder" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[${accent}] focus:border-[${accent}] bg-white dark:bg-gray-800 sm:text-sm" value={formData.displayOrder} onChange={handleChange} />
+              <input type="number" name="displayOrder" id="displayOrder" className={inputClass} value={formData.displayOrder} onChange={handleChange} />
             </div>
           </div>
         );
@@ -174,7 +178,7 @@ export default function NewProjectFormClientV2() {
           <div className="space-y-4">
             <div>
               <label htmlFor="technologies" className={`block text-sm font-medium ${textColor}`}>Technologies (comma-separated)</label>
-              <input type="text" name="technologies" id="technologies" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[${accent}] focus:border-[${accent}] bg-white dark:bg-gray-800 sm:text-sm" value={formData.technologies} onChange={handleChange} />
+              <input type="text" name="technologies" id="technologies" className={inputClass} value={formData.technologies} onChange={handleChange} />
             </div>
           </div>
         );
@@ -214,9 +218,11 @@ export default function NewProjectFormClientV2() {
                 <div className="flex-1" />
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="inline-flex justify-center items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white"
-                  style={{ background: accent, opacity: isSubmitting ? 0.7 : 1 }}
+                  disabled={isSubmitting}                  className={`inline-flex justify-center items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${
+                    resolvedTheme === 'light'
+                      ? 'bg-blue-500 hover:bg-blue-600'
+                      : 'bg-[#FFC300] hover:bg-[#ffcd2c]'
+                  } ${isSubmitting ? 'opacity-70' : ''}`}
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
@@ -234,4 +240,4 @@ export default function NewProjectFormClientV2() {
       </div>
     </div>
   );
-} 
+}

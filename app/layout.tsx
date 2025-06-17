@@ -4,6 +4,7 @@ import './globals.css'
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import { Providers } from './providers'
+import themeScript from './theme-script'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -36,9 +37,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  return (
-    <html lang="en" suppressHydrationWarning className={inter.variable}>
-      <body className="min-h-screen bg-background font-sans antialiased">
+  return (    <html lang="en" suppressHydrationWarning className={inter.variable}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      <body className="min-h-screen font-sans antialiased bg-white dark:bg-[#232b3b] transition-colors">
         <Providers>
           <div className="relative flex min-h-screen flex-col">
             {children}

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useTheme } from 'next-themes';
-import { useState, useEffect } from 'react';
+import { useTheme } from "next-themes";
+import { useState, useEffect } from "react";
 
 export function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
@@ -13,19 +13,16 @@ export function ThemeToggle() {
 
   return (
     <button
-      onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-      className="p-2 rounded-lg bg-surface dark:bg-dark-surface-light 
-        hover:bg-neutral-600 dark:hover:bg-dark-surface 
+      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}      className="p-2 rounded-lg bg-transparent
         transition-colors duration-200
-        text-gray-800 dark:text-gray-200
-        ring-1 ring-gray-200 dark:ring-gray-700"
-      aria-label={resolvedTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+        ring-1 ring-blue-200 dark:ring-[#444]"
+      aria-label={
+        resolvedTheme === "dark"
+          ? "Switch to light mode"
+          : "Switch to dark mode"
+      }
     >
-      {resolvedTheme === 'dark' ? (
-        <SunIcon />
-      ) : (
-        <MoonIcon />
-      )}
+      {resolvedTheme === "dark" ? <SunIcon /> : <MoonIcon />}
     </button>
   );
 }
@@ -38,7 +35,7 @@ function SunIcon() {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className="w-5 h-5"
+      className="w-5 h-5 text-[#FFC300]"
     >
       <path
         strokeLinecap="round"
@@ -52,12 +49,11 @@ function SunIcon() {
 function MoonIcon() {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
+      xmlns="http://www.w3.org/2000/svg"      fill="currentColor"
       viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      className="w-5 h-5"
+      strokeWidth={0}
+      stroke="none"
+      className="w-5 h-5 text-[#232b3b]"
     >
       <path
         strokeLinecap="round"

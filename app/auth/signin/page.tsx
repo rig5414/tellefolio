@@ -5,7 +5,9 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useTheme } from 'next-themes';
 import CircularLoader from '@/components/admin/CircularLoader';
+import { ThemeToggle } from '@/components/admin/ThemeToggle';
 import Image from 'next/image';
 
 export default function SignInPage() {
@@ -13,6 +15,7 @@ export default function SignInPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { resolvedTheme } = useTheme();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,22 +49,29 @@ export default function SignInPage() {
           src="/images/adminbackground.jpg"
           alt="Admin Background"
           fill
-          priority
-          className="object-cover blur-md scale-105"
-          style={{ filter: 'blur(8px) brightness(0.7)' }}
+          priority          className={`object-cover blur-md scale-105 ${
+            resolvedTheme === 'dark' ? 'brightness-[0.7]' : 'brightness-[1.1]'
+          }`}
         />
+      </div>      {/* Theme toggle */}
+      <div className="absolute top-6 right-8 z-20">
+        <ThemeToggle />
       </div>
       {/* Dark overlay */}
-      <div className="absolute inset-0 bg-[#232b3b]/80 z-0" />
+      <div className={`absolute inset-0 ${resolvedTheme === 'dark' ? 'bg-[#232b3b]/80' : 'bg-blue-100/50'} z-0 transition-colors`} />
       {/* Centered loader and form, grouped visually */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen">
         <CircularLoader loading={isLoading}>
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-6 items-center bg-[#232b3b]/80 rounded-2xl p-8 shadow-xl w-full"
-            style={{ boxShadow: '0 0 40px 0 #ffc30044' }}
-          >
-            <h2 className="text-3xl font-bold text-[#FFC300] mb-2 text-center">Login</h2>
+            className={`flex flex-col gap-6 items-center rounded-2xl p-8 w-full transition-colors ${
+              resolvedTheme === 'dark' 
+                ? 'bg-[#232b3b]/80 shadow-[0_0_40px_0_#ffc30044]' 
+                : 'bg-white/90 shadow-lg'
+            }`}
+          >            <h2 className={`text-3xl font-bold mb-2 text-center ${
+              resolvedTheme === 'dark' ? 'text-[#FFC300]' : 'text-blue-600'
+            }`}>Login</h2>
             <div className="w-full flex flex-col gap-4">
               <div className="relative">
                 <input
@@ -70,7 +80,11 @@ export default function SignInPage() {
                   type="text"
                   autoComplete="username"
                   required
-                  className="w-full rounded-md bg-[#232b3b] border border-[#444] px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FFC300] text-base pr-10"
+                  className={`w-full rounded-md px-4 py-3 text-base pr-10 focus:outline-none focus:ring-2 ${
+                    resolvedTheme === 'dark'
+                      ? 'bg-[#232b3b] border-[#444] text-white placeholder-gray-400 focus:ring-[#FFC300]'
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-blue-500'
+                  }`}
                   placeholder="Username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
@@ -87,7 +101,11 @@ export default function SignInPage() {
                   type="password"
                   autoComplete="current-password"
                   required
-                  className="w-full rounded-md bg-[#232b3b] border border-[#444] px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FFC300] text-base pr-10"
+                  className={`w-full rounded-md px-4 py-3 text-base pr-10 focus:outline-none focus:ring-2 ${
+                    resolvedTheme === 'dark'
+                      ? 'bg-[#232b3b] border-[#444] text-white placeholder-gray-400 focus:ring-[#FFC300]'
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-blue-500'
+                  }`}
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -103,9 +121,7 @@ export default function SignInPage() {
             )}
             <button
               type="submit"
-              disabled={isLoading}
-              className="w-full py-3 rounded-md bg-[#FFC300] text-[#232b3b] font-bold text-lg shadow-md transition-all duration-200 hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-[#FFC300] focus:ring-offset-2 disabled:opacity-60"
-              style={{ boxShadow: isLoading ? '0 0 20px 0 #FFC300' : undefined }}
+              disabled={isLoading}              className={`w-full py-3 rounded-md bg-[#FFC300] text-[#232b3b] font-bold text-lg shadow-md transition-all duration-200 hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-[#FFC300] focus:ring-offset-2 disabled:opacity-60 ${isLoading ? 'shadow-[0_0_20px_0_#FFC300]' : ''}`}
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
