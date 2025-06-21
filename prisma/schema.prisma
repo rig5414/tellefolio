@@ -33,6 +33,13 @@ model Project {
   images             ProjectImage[]
   links              ProjectLink[]
   technologies       Technology[]
+
+  githubRepoUrl     String?       // Store the GitHub repository URL
+  githubRepoId      String?       // Store GitHub's repository ID
+  githubLastSync    DateTime?     // Track last sync with GitHub
+  productionUrl     String?       // The live/production URL for AI analysis
+  autoAnalyzed      Boolean       @default(false) // Flag if content was AI-analyzed
+  mainImageId       String?       // The chosen main image for the project
 }
 
 model ProjectImage {

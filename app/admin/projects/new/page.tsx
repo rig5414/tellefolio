@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 import { authOptions } from '../../../api/auth/config';
 
 // Import the Client Component
-import NewProjectFormClientV2 from '@/components/admin/NewProjectFormClientV2';
+import ProjectWizard from '@/components/admin/ProjectWizard';
 
 // Export the Server Component as the default export for the page
 export default async function NewProjectPage() {
@@ -17,5 +17,5 @@ export default async function NewProjectPage() {
   }
 
   // Render the Client Component
-  return <NewProjectFormClientV2 />;
-} 
+  return <ProjectWizard />;
+}

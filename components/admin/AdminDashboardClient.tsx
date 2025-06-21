@@ -27,7 +27,6 @@ export default function AdminDashboardClient({ session }: { session: Session }) 
     resolvedTheme === "light"
       ? "bg-blue-50/90 border border-blue-200"
       : "bg-[#232b3b]/90 border border-[#444]";
-  const accent = resolvedTheme === "light" ? "#2563eb" : "#FFC300";
   const textColor = resolvedTheme === "light" ? "text-blue-900" : "text-gray-200";
 
   // Logout handler
@@ -46,8 +45,10 @@ export default function AdminDashboardClient({ session }: { session: Session }) 
           alt="Admin Background"
           fill
           priority
-          className="object-cover blur-md scale-105 transition-all duration-700"
-          style={{ filter: resolvedTheme === "light" ? "blur(8px) brightness(1.05)" : "blur(8px) brightness(0.7)" }}
+          className={
+            `object-cover blur-md scale-105 transition-all duration-700 ` +
+            (resolvedTheme === "light" ? "brightness-105" : "brightness-70")
+          }
         />
       </div>
       {/* Themed overlay */}
@@ -93,20 +94,18 @@ export default function AdminDashboardClient({ session }: { session: Session }) 
         <CircularLoader>
           <div className={`flex flex-col items-center justify-center w-full max-w-xl gap-6 ${cardBg} rounded-2xl p-10 shadow-2xl transition-all duration-700`}>
             <h1
-              className={`text-4xl font-extrabold mb-2 text-center drop-shadow ${textColor}`}
-              style={{ color: accent }}
+              className={`text-4xl font-extrabold mb-2 text-center drop-shadow ${resolvedTheme === "light" ? "text-blue-700" : "text-yellow-400"}`}
             >
               Admin Dashboard
             </h1>
             <p className={`text-lg mb-4 text-center ${textColor}`}>
-              Welcome, <span className="font-semibold" style={{ color: accent }}>{session.user?.name || session.user?.email}</span>!<br />
+              Welcome, <span className={resolvedTheme === "light" ? "text-blue-700 font-semibold" : "text-yellow-400 font-semibold"}>{session.user?.name || session.user?.email}</span>!<br />
               Manage your portfolio projects here.
             </p>
             <div className="w-full flex flex-col items-center gap-4">
               <a
                 href="/admin/projects/new"
-                className="block w-full text-center py-3 rounded-lg"
-                style={{ background: accent, color: '#fff', fontWeight: 700, fontSize: '1.125rem', boxShadow: '0 2px 8px 0 #0002' }}
+                className={`block w-full text-center py-3 rounded-lg font-bold text-lg shadow-md ${resolvedTheme === "light" ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-yellow-400 hover:bg-yellow-500 text-gray-900"}`}
               >
                 + Add New Project
               </a>
@@ -120,4 +119,4 @@ export default function AdminDashboardClient({ session }: { session: Session }) 
       </div>
     </div>
   );
-} 
+}

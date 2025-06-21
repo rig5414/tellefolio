@@ -1,5 +1,6 @@
 import { NextAuthOptions, Session, User } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import GitHubProvider from 'next-auth/providers/github';
 
 interface ExtendedUser extends User {
   id: string;
@@ -7,6 +8,7 @@ interface ExtendedUser extends User {
 
 interface ExtendedSession extends Session {
   user: ExtendedUser;
+  githubAccessToken?: string;
 }
 
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
@@ -44,6 +46,11 @@ export const authOptions: NextAuthOptions = {
         throw new Error('Invalid username or password');
       },
     }),
+    GitHubProvider({
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      authorization: { params: { scope: 'read:user repo' } },
+    }),
   ],
   pages: {
     signIn: '/auth/signin',
@@ -54,9 +61,12 @@ export const authOptions: NextAuthOptions = {
     maxAge: 24 * 60 * 60,
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
+      }
+      if (account && account.provider === 'github') {
+        token.githubAccessToken = account.access_token;
       }
       return token;
     },
@@ -67,9 +77,15 @@ export const authOptions: NextAuthOptions = {
           ...session.user,
           id: token.id as string,
         },
+        githubAccessToken: token.githubAccessToken as string | undefined,
       };
     },
   },
   debug: process.env.NODE_ENV === 'development',
   secret: process.env.NEXTAUTH_SECRET,
 };
+
+//
+// Required in your .env.local:
+// GITHUB_CLIENT_ID=your_github_client_id
+// GITHUB_CLIENT_SECRET=your_github_client_secret
