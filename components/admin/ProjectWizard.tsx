@@ -45,8 +45,20 @@ export default function ProjectWizard() {
     isFeatured: false,
     displayOrder: 0,
   });
-  const [step, setStep] = useState(0);
-  const [importType, setImportType] = useState<"manual" | "github" | null>(null);
+  const [step, setStep] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const urlStep = new URLSearchParams(window.location.search).get('step');
+      return urlStep ? parseInt(urlStep, 10) : 0;
+    }
+    return 0;
+  });
+  const [importType, setImportType] = useState<"manual" | "github" | null>(() => {
+    if (typeof window !== 'undefined') {
+      const urlImportType = new URLSearchParams(window.location.search).get('importType');
+      return urlImportType === 'github' || urlImportType === 'manual' ? urlImportType : null;
+    }
+    return null;
+  });
   const [repos, setRepos] = useState<GitHubRepo[] | null>(null);
   const [reposLoading, setReposLoading] = useState(false);
   const [reposError, setReposError] = useState<string | null>(null);
@@ -126,7 +138,7 @@ export default function ProjectWizard() {
     }
   }, [importType, step, session]);
 
-  // Always call useEffect at the top level
+  // AI analysis effect: robustly parse AI response and resolve TS errors
   useEffect(() => {
     if (
       step === 3 &&
@@ -147,12 +159,42 @@ export default function ProjectWizard() {
       })
         .then((res) => res.json())
         .then((data) => {
+          // Define a type guard for AI response
+          interface AiFields {
+            title?: string;
+            tagline?: string;
+            description?: string;
+            technologies?: string;
+          }
+          const isAiFields = (obj: unknown): obj is AiFields =>
+            !!obj && typeof obj === 'object' && (
+              'title' in obj || 'tagline' in obj || 'description' in obj || 'technologies' in obj
+            );
+
+          let aiData: AiFields = {};
+          // Prefer parsed description if it's a stringified JSON
+          if (typeof data.description === "string" && data.description.trim().startsWith("{")) {
+            try {
+              const parsed = JSON.parse(data.description);
+              if (isAiFields(parsed)) {
+                aiData = parsed;
+              }
+            } catch {
+              // fallback: use as is
+            }
+          }
+          // If no fields from parsed description, use top-level fields
+          if (!aiData.title && !aiData.tagline && !aiData.description && !aiData.technologies) {
+            if (isAiFields(data)) {
+              aiData = data;
+            }
+          }
           setFormData((prev) => ({
             ...prev,
-            title: data.title || "",
-            tagline: data.tagline || "",
-            problemStatement: data.description || "",
-            technologies: data.technologies || "",
+            title: aiData.title || "",
+            tagline: aiData.tagline || "",
+            problemStatement: aiData.description || "",
+            technologies: aiData.technologies || "",
           }));
           setAiLoading(false);
         })
@@ -162,6 +204,36 @@ export default function ProjectWizard() {
         });
     }
   }, [step, importType, selectedRepo, productionUrl, formData.title, aiLoading, aiError, aiTriggered]);
+
+  // Add after other useEffects, near the top of the component
+  useEffect(() => {
+    if (
+      importType === "github" &&
+      step === 1 &&
+      session &&
+      !session.githubAccessToken &&
+      typeof window !== "undefined" &&
+      window.location.search.includes("fromGithub=1")
+    ) {
+      window.location.reload();
+    }
+  }, [session, importType, step]);
+
+  // On mount, update state from URL if present (for SSR hydration)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const urlStep = params.get('step');
+      const urlImportType = params.get('importType');
+      if (urlStep && parseInt(urlStep, 10) !== step) {
+        setStep(parseInt(urlStep, 10));
+      }
+      if (urlImportType && urlImportType !== importType) {
+        setImportType(urlImportType as 'manual' | 'github');
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Step content
   const renderStep = () => {
@@ -352,13 +424,14 @@ export default function ProjectWizard() {
             <button
               className="px-8 py-4 rounded-lg bg-green-600 hover:bg-green-700 text-white text-lg font-semibold shadow-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-green-300"
               onClick={() => {
-                window.location.href = "/api/auth/signin/github?callbackUrl=/admin/projects/new";
+                const callbackUrl = encodeURIComponent("/admin/projects/new?fromGithub=1&importType=github&step=1");
+                window.location.href = `/api/auth/signin/github?callbackUrl=${callbackUrl}`;
               }}
             >
               <span className="flex items-center gap-2">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.021c0 4.428 2.865 8.186 6.839 9.504.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.004.07 1.532 1.032 1.532 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.339-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.987 1.029-2.686-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.295 2.748-1.025 2.748-1.025.546 1.378.203 2.397.1 2.65.64.699 1.028 1.593 1.028 2.686 0 3.847-2.338 4.695-4.566 4.944.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.744 0 .267.18.577.688.479C19.138 20.203 22 16.447 22 12.021 22 6.484 17.523 2 12 2z" /></svg>
-              Connect GitHub
-            </span>
+                Connect GitHub
+              </span>
             </button>
           </div>
         </div>
@@ -388,7 +461,7 @@ export default function ProjectWizard() {
           <div className={`flex flex-col items-center justify-center w-full max-w-md gap-8 ${cardBg} rounded-2xl p-10 shadow-2xl transition-all duration-700 mt-12`}>
             <h2 className={`text-3xl font-extrabold text-center mb-4 drop-shadow ${headingColor}`}>Select a Repository</h2>
             <ul className="w-full max-w-md divide-y divide-gray-200 dark:divide-gray-700">
-              {repos.map((repo) => (
+              {repos?.map((repo) => (
                 <li key={repo.id} className="py-3 cursor-pointer hover:bg-blue-100 dark:hover:bg-gray-800 px-4 rounded transition"
                     onClick={() => {
                       setSelectedRepo(repo);
@@ -420,7 +493,7 @@ export default function ProjectWizard() {
         <div className="mb-4 w-full max-w-md">
           <div className="mb-2 font-semibold">Selected Repository:</div>
           <div className="p-2 bg-gray-100 rounded border mb-2">
-            <div className="font-semibold">{selectedRepo.name}</div>
+            <div className="font-semibold">{selectedRepo?.name}</div>
           </div>
         </div>
         <input
@@ -544,43 +617,79 @@ export default function ProjectWizard() {
     );
   }
 
-  // Cloudinary upload helper
-  async function uploadScreenshotsToCloudinary(files: File[]): Promise<string[]> {
-    const urls: string[] = [];
-    for (const file of files) {
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await fetch('/api/cloudinary/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      if (!res.ok) throw new Error('Failed to upload image');
-      const data = await res.json();
-      urls.push(data.url);
-    }
-    return urls;
-  }
-
   // Step 6: Final review and submit
   if (step === 5) {
+    // Helper to convert File to base64 string
+    const fileToBase64 = (file: File): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    };
+
     const handleFinalSubmit = async () => {
       setIsSubmitting(true);
       try {
-        // 1. Upload screenshots to Cloudinary
-        const uploadedUrls = await uploadScreenshotsToCloudinary(screenshots);
-        // 2. Set main image URL
-        const mainImageUrl = mainImageIndex !== null ? uploadedUrls[mainImageIndex] : '';
-        // 3. Submit project data
+        // 1. Convert screenshots to base64 strings and build images array
+        const base64Screenshots = await Promise.all(screenshots.map(fileToBase64));
+        const images = base64Screenshots.map((url, idx) => ({
+          url,
+          altText: `Screenshot ${idx + 1}`,
+        }));
+        // 2. Build links array (GitHub, live, video)
+        const links = [];
+        if ((selectedRepo && selectedRepo.name) || formData.githubLink) {
+          links.push({
+            url: selectedRepo ? `https://github.com/${selectedRepo.name}` : formData.githubLink,
+            text: 'GitHub Repo',
+          });
+        }
+        if (productionUrl || formData.liveLink) {
+          links.push({
+            url: productionUrl || formData.liveLink,
+            text: 'Live Site',
+          });
+        }
+        if (formData.videoUrl) {
+          links.push({
+            url: formData.videoUrl,
+            text: 'Video',
+          });
+        }
+        // 3. Technologies as array
+        const technologies = formData.technologies
+          ? formData.technologies.split(',').map(t => t.trim()).filter(Boolean)
+          : [];
+        // 4. Prepare project data for backend
+        const projectPayload = {
+          title: formData.title,
+          tagline: formData.tagline,
+          problemStatement: formData.problemStatement,
+          role: formData.role,
+          processDescription: formData.processDescription,
+          solutionOutcome: formData.solutionOutcome,
+          videoUrl: formData.videoUrl,
+          keyLearnings: formData.keyLearnings,
+          projectStatus: formData.projectStatus,
+          dateRange: formData.dateRange,
+          displayOrder: formData.displayOrder,
+          isFeatured: formData.isFeatured,
+          githubRepoUrl: selectedRepo ? `https://github.com/${selectedRepo.name}` : formData.githubLink,
+          githubRepoId: selectedRepo ? String(selectedRepo.id) : undefined,
+          productionUrl: productionUrl || formData.liveLink,
+          autoAnalyzed: false, // or true if AI was used
+          images, // [{ url, altText }]
+          mainImageIndex: mainImageIndex ?? 0, // let backend set mainImageId
+          links, // [{ url, text }]
+          technologies, // [name]
+        };
+        // 5. Submit project data
         const response = await fetch('/api/projects', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ...formData,
-            mainImageUrl,
-            screenshots: uploadedUrls,
-            githubLink: selectedRepo ? `https://github.com/${selectedRepo.name}` : formData.githubLink,
-            liveLink: productionUrl || formData.liveLink,
-          }),
+          body: JSON.stringify(projectPayload),
         });
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({ message: 'Failed to create project.' }));
