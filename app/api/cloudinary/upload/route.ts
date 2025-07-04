@@ -7,7 +7,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export const runtime = 'edge'; // Use edge runtime for faster uploads
+export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   try {
