@@ -9,11 +9,51 @@ import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Session } from "next-auth";
 
+// Types for project and related entities
+type ProjectImage = {
+  id: string;
+  url: string;
+  altText?: string;
+};
+type ProjectLink = {
+  id: string;
+  url: string;
+  text: string;
+};
+type ProjectTechnology = {
+  id: string;
+  name: string;
+};
+type Project = {
+  id: string;
+  title: string;
+  tagline?: string;
+  description?: string;
+  projectStatus?: string;
+  dateRange?: string;
+  problemStatement?: string;
+  solutionOutcome?: string;
+  role?: string;
+  keyLearnings?: string;
+  links?: ProjectLink[];
+  technologies?: ProjectTechnology[];
+  images?: ProjectImage[];
+  mainImageId?: string;
+  mainImage?: ProjectImage;
+  githubRepoUrl?: string;
+  productionUrl?: string;
+  autoAnalyzed?: boolean;
+  displayOrder?: number;
+  isFeatured?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export default function AdminDashboardClient({ session }: { session: Session }) {
   const { resolvedTheme } = useTheme();
   const [showLogout, setShowLogout] = useState(false);
   const router = useRouter();
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
   // Collapsible projects wizard state and handler
   const [showProjectsWizard, setShowProjectsWizard] = useState(false);
@@ -59,15 +99,6 @@ export default function AdminDashboardClient({ session }: { session: Session }) 
       })
       .catch(() => setLoadingProjects(false));
   }, []);
-
-  // Wizard steps for project details
-  const wizardSteps = [
-    "Overview",
-    "Images",
-    "Links",
-    "Technologies",
-    "Meta",
-  ];
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -164,14 +195,14 @@ export default function AdminDashboardClient({ session }: { session: Session }) 
                     {projects.length === 0 && !loadingProjects && (
                       <div className="text-center text-gray-500">No projects found.</div>
                     )}
-                    {projects.map((project, idx) => (
+                    {projects.map((project) => (
                       <div key={project.id}>
                         <div
                           className={`flex items-center gap-4 cursor-pointer rounded-lg p-3 border transition-all duration-200 ${expandedProjects.includes(project.id) ? (resolvedTheme === 'light' ? 'bg-blue-50 border-blue-300' : 'bg-[#232b3b] border-yellow-400') : (resolvedTheme === 'light' ? 'bg-white border-blue-200' : 'bg-[#232b3b] border-[#444]')}`}
                           onClick={() => handleToggleProject(project.id)}
                         >
                           {project.mainImage?.url && (
-                            <img src={project.mainImage.url} alt="Main" className="w-16 h-12 object-cover rounded border" />
+                            <Image src={project.mainImage.url} alt="Main" width={64} height={48} className="w-16 h-12 object-cover rounded border" />
                           )}
                           <div className="flex-1">
                             <div className="font-bold text-lg">{project.title}</div>
@@ -189,11 +220,11 @@ export default function AdminDashboardClient({ session }: { session: Session }) 
                             <div className="mb-2"><span className="font-semibold">Solution:</span> {project.solutionOutcome}</div>
                             <div className="mb-2"><span className="font-semibold">Role:</span> {project.role}</div>
                             <div className="mb-2"><span className="font-semibold">Key Learnings:</span> {project.keyLearnings}</div>
-                            <div className="mb-2"><span className="font-semibold">Links:</span> {project.links?.length > 0 ? project.links.map((link: any) => (<a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-yellow-400 underline ml-2">{link.text}</a>)) : <span className="text-gray-400 ml-2">N/A</span>}</div>
-                            <div className="mb-2"><span className="font-semibold">Technologies:</span> {project.technologies?.length > 0 ? project.technologies.map((tech: any) => (<span key={tech.id} className="px-2 py-1 rounded-full bg-blue-100 dark:bg-yellow-900 text-blue-700 dark:text-yellow-300 text-xs font-semibold ml-1">{tech.name}</span>)) : <span className="text-gray-400 ml-2">N/A</span>}</div>
-                            <div className="mb-2"><span className="font-semibold">Images:</span> {project.images?.length > 0 ? (
-                              <div className="flex flex-wrap gap-2 mt-1">{project.images.map((img: any, idx: number) => (
-                                <img key={img.id} src={img.url} alt={img.altText || `Screenshot ${idx + 1}`} className={`w-20 h-14 object-cover rounded border-2 ${project.mainImageId === img.id ? 'border-blue-500' : 'border-gray-300'}`} />
+                            <div className="mb-2"><span className="font-semibold">Links:</span> {project.links?.length ? project.links.map((link) => (<a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-yellow-400 underline ml-2">{link.text}</a>)) : <span className="text-gray-400 ml-2">N/A</span>}</div>
+                            <div className="mb-2"><span className="font-semibold">Technologies:</span> {project.technologies?.length ? project.technologies.map((tech) => (<span key={tech.id} className="px-2 py-1 rounded-full bg-blue-100 dark:bg-yellow-900 text-blue-700 dark:text-yellow-300 text-xs font-semibold ml-1">{tech.name}</span>)) : <span className="text-gray-400 ml-2">N/A</span>}</div>
+                            <div className="mb-2"><span className="font-semibold">Images:</span> {project.images?.length ? (
+                              <div className="flex flex-wrap gap-2 mt-1">{project.images.map((img, imgIdx) => (
+                                <Image key={img.id} src={img.url} alt={img.altText || `Screenshot ${imgIdx + 1}`} width={80} height={56} className={`w-20 h-14 object-cover rounded border-2 ${project.mainImageId === img.id ? 'border-blue-500' : 'border-gray-300'}`} />
                               ))}</div>
                             ) : <span className="text-gray-400 ml-2">No images</span>}</div>
                             <div className="mb-2"><span className="font-semibold">GitHub Repo:</span> {project.githubRepoUrl ? <a href={project.githubRepoUrl} className="text-blue-600 underline" target="_blank" rel="noopener noreferrer">{project.githubRepoUrl}</a> : <span className="text-gray-400">N/A</span>}</div>
@@ -201,8 +232,8 @@ export default function AdminDashboardClient({ session }: { session: Session }) 
                             <div className="mb-2"><span className="font-semibold">Auto Analyzed:</span> {project.autoAnalyzed ? 'Yes' : 'No'}</div>
                             <div className="mb-2"><span className="font-semibold">Display Order:</span> {project.displayOrder}</div>
                             <div className="mb-2"><span className="font-semibold">Featured:</span> {project.isFeatured ? 'Yes' : 'No'}</div>
-                            <div className="mb-2"><span className="font-semibold">Created:</span> {new Date(project.createdAt).toLocaleString()}</div>
-                            <div className="mb-2"><span className="font-semibold">Updated:</span> {new Date(project.updatedAt).toLocaleString()}</div>
+                            <div className="mb-2"><span className="font-semibold">Created:</span> {project.createdAt ? new Date(project.createdAt).toLocaleString() : ''}</div>
+                            <div className="mb-2"><span className="font-semibold">Updated:</span> {project.updatedAt ? new Date(project.updatedAt).toLocaleString() : ''}</div>
                           </div>
                         )}
                       </div>
