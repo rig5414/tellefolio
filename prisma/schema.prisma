@@ -39,7 +39,8 @@ model Project {
   githubLastSync    DateTime?     // Track last sync with GitHub
   productionUrl     String?       // The live/production URL for AI analysis
   autoAnalyzed      Boolean       @default(false) // Flag if content was AI-analyzed
-  mainImageId       String?       // The chosen main image for the project
+  mainImageId       String?       @unique // The chosen main image for the project
+  mainImage         ProjectImage? @relation("MainImage", fields: [mainImageId], references: [id])
 }
 
 model ProjectImage {
@@ -48,6 +49,7 @@ model ProjectImage {
   altText   String?
   projectId String
   project   Project  @relation(fields: [projectId], references: [id])
+  mainOf    Project? @relation("MainImage")
 }
 
 model ProjectLink {

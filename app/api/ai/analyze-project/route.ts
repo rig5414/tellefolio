@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function POST(req: NextRequest) {
   const { productionUrl, repo } = await req.json();
@@ -18,30 +18,19 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 2. Prepare prompt for OpenAI
+  // 2. Prepare prompt for Gemini
   const prompt = `You are an AI portfolio assistant. Analyze the following website HTML and GitHub repo info, and extract structured project details for a portfolio. Return a JSON object with: title, tagline, description, technologies (comma-separated).\n\nWebsite HTML:\n${html.slice(
     0,
     8000
   )}\n\nGitHub Repo:\n${JSON.stringify(repo)}\n\nJSON:`;
 
-  // 3. Call OpenAI API
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  // 3. Call Gemini API
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
   try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a helpful assistant that extracts project details for a portfolio.",
-        },
-        { role: "user", content: prompt },
-      ],
-      temperature: 0.2,
-      max_tokens: 400,
-    });
-    // 4. Parse the JSON from the AI response
-    const text = completion.choices[0].message?.content || "{}";
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
     let data;
     try {
       data = JSON.parse(text);
@@ -49,7 +38,8 @@ export async function POST(req: NextRequest) {
       data = { description: text };
     }
     return NextResponse.json(data);
-  } catch {
-    return NextResponse.json({ error: "OpenAI API error." }, { status: 500 });
+  } catch (err) {
+    console.error("Gemini API error:", err);
+    return NextResponse.json({ error: "Gemini API error." }, { status: 500 });
   }
 }

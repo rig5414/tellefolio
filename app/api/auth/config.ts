@@ -52,34 +52,32 @@ export const authOptions: NextAuthOptions = {
       authorization: { params: { scope: 'read:user repo' } },
     }),
   ],
-  pages: {
-    signIn: '/auth/signin',
-    error: '/auth/signin',
-  },
-  session: {
-    strategy: "jwt",
-    maxAge: 24 * 60 * 60,
-  },
   callbacks: {
-    async jwt({ token, user, account }) {
-      if (user) {
-        token.id = user.id;
-      }
-      if (account && account.provider === 'github') {
-        token.githubAccessToken = account.access_token;
+    async jwt({ token, account, profile, user }) {
+      console.log('JWT callback:', { token, account, profile, user });
+      // Persist the access token to the token right after signin
+      if (account) {
+        token.accessToken = account.access_token;
       }
       return token;
     },
-    async session({ session, token }): Promise<ExtendedSession> {
-      return {
-        ...session,
-        user: {
-          ...session.user,
-          id: token.id as string,
-        },
-        githubAccessToken: token.githubAccessToken as string | undefined,
-      };
+    async session({ session, token }) {
+      console.log('Session callback:', { session, token });
+      // Send access token to client
+      (session as ExtendedSession).githubAccessToken = token.accessToken as string;
+      return session;
     },
+    async redirect({ url, baseUrl }) {
+      console.log('Redirect callback:', { url, baseUrl });
+      // Handle callback URLs with query parameters properly
+      if (url.startsWith(baseUrl)) return url;
+      // Allows callback URLs with additional query parameters
+      if (url.startsWith('/')) return `${baseUrl}${url}`;
+      return baseUrl;
+    },
+  },
+  session: {
+    strategy: "jwt",
   },
   debug: process.env.NODE_ENV === 'development',
   secret: process.env.NEXTAUTH_SECRET,

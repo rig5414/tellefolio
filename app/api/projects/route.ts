@@ -7,6 +7,40 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// Define types for the request body
+interface ProjectImage {
+    url: string;
+    altText?: string;
+}
+
+interface ProjectLink {
+    url: string;
+    text: string;
+}
+
+interface CreateProjectPayload {
+    title: string;
+    tagline?: string;
+    problemStatement?: string;
+    role?: string;
+    processDescription?: string;
+    solutionOutcome?: string;
+    videoUrl?: string;
+    keyLearnings?: string;
+    projectStatus?: string;
+    dateRange?: string;
+    displayOrder?: number;
+    isFeatured?: boolean;
+    githubRepoUrl?: string;
+    githubRepoId?: string;
+    productionUrl?: string;
+    autoAnalyzed?: boolean;
+    images?: ProjectImage[];
+    links?: ProjectLink[];
+    technologies?: string[];
+    mainImageIndex?: number;
+}
+
 // GET /api/projects
 export async function GET() {
     try {
@@ -27,14 +61,17 @@ export async function POST(request: Request) {
     }
 
     try {
-        const body = await request.json();
-        // Basic validation - expand this as needed
+        const body = await request.json() as CreateProjectPayload;
+        
+        // Basic validation
         if (!body.title) {
             return NextResponse.json({ message: 'Title is required' }, { status: 400 });
         }
 
+        // Create project with all relations in a single transaction
         const newProject = await prisma.project.create({
             data: {
+                // Basic fields
                 title: body.title,
                 tagline: body.tagline,
                 problemStatement: body.problemStatement,
@@ -45,16 +82,65 @@ export async function POST(request: Request) {
                 keyLearnings: body.keyLearnings,
                 projectStatus: body.projectStatus,
                 dateRange: body.dateRange,
-                displayOrder: body.displayOrder,
-                isFeatured: body.isFeatured,
-                // Note: Images, links, and technologies will need separate endpoints or a more complex POST body
+                displayOrder: body.displayOrder ?? 0,
+                isFeatured: body.isFeatured ?? false,
+
+                // Create related records
+                images: body.images ? {
+                    create: body.images.map((img: ProjectImage) => ({
+                        url: img.url,
+                        altText: img.altText
+                    }))
+                } : undefined,
+
+                links: body.links ? {
+                    create: body.links.map((link: ProjectLink) => ({
+                        url: link.url,
+                        text: link.text
+                    }))
+                } : undefined,
+
+                technologies: body.technologies ? {
+                    connectOrCreate: body.technologies.map((tech: string) => ({
+                        where: { name: tech },
+                        create: { name: tech }
+                    }))
+                } : undefined
             },
+            // Include relations in response
+            include: {
+                images: true,
+                links: true,
+                technologies: true
+            }
         });
 
-        return NextResponse.json(newProject, { status: 201 });
+        // If mainImageIndex is provided and valid, update the project with mainImageId
+        let updatedProject = newProject;
+        if (
+          typeof body.mainImageIndex === 'number' &&
+          newProject.images &&
+          newProject.images[body.mainImageIndex]
+        ) {
+          updatedProject = await prisma.project.update({
+            where: { id: newProject.id },
+            data: { mainImageId: newProject.images[body.mainImageIndex].id },
+            include: {
+              images: true,
+              links: true,
+              technologies: true
+              // mainImage: true, // Remove this line, not supported by Prisma types yet
+            },
+          }) as typeof newProject;
+        }
+
+        return NextResponse.json(updatedProject, { status: 201 });
     } catch (error) {
         console.error('Error creating project:', error);
-        return NextResponse.json({ message: 'Something went wrong creating the project.' }, { status: 500 });
+        return NextResponse.json({ 
+            message: 'Something went wrong creating the project.',
+            error: error instanceof Error ? error.message : String(error)
+        }, { status: 500 });
     }
 }
 

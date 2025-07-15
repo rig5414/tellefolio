@@ -492,7 +492,7 @@ export default function ProjectWizard() {
         <h2 className="text-2xl font-bold">Enter Production URL</h2>
         <div className="mb-4 w-full max-w-md">
           <div className="mb-2 font-semibold">Selected Repository:</div>
-          <div className="p-2 bg-gray-100 rounded border mb-2">
+          <div className="p-2 bg-gray-800 rounded border mb-2">
             <div className="font-semibold">{selectedRepo?.name}</div>
           </div>
         </div>
