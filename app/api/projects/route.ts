@@ -5,7 +5,11 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/config';
 import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+// Use a single instance of Prisma Client in development
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+
+const prisma = globalForPrisma.prisma || new PrismaClient();
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 // Define types for the request body
 interface ProjectImage {
@@ -44,11 +48,23 @@ interface CreateProjectPayload {
 // GET /api/projects
 export async function GET() {
     try {
-        const projects = await prisma.project.findMany();
-        return NextResponse.json(projects, { status: 200 });
+        const projects = await prisma.project.findMany({
+            include: {
+                images: true,
+                links: true,
+                technologies: true
+            },
+            orderBy: {
+                displayOrder: 'asc'
+            }
+        });
+        
+        // Ensure we always return an array
+        return NextResponse.json(projects || [], { status: 200 });
     } catch (error) {
         console.error('Error fetching projects:', error);
-        return NextResponse.json({ message: 'Something went wrong fetching projects.' }, { status: 500 });
+        // Return empty array instead of error message
+        return NextResponse.json([], { status: 200 });
     }
 }
 

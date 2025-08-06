@@ -55,6 +55,7 @@ export default function AdminDashboardClient({ session }: { session: Session }) 
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   // Collapsible projects wizard state and handler
   const [showProjectsWizard, setShowProjectsWizard] = useState(false);
   const [expandedProjects, setExpandedProjects] = useState<string[]>([]);
@@ -90,14 +91,27 @@ export default function AdminDashboardClient({ session }: { session: Session }) 
 
   // Fetch projects
   useEffect(() => {
-    setLoadingProjects(true);
-    fetch("/api/projects")
-      .then((res) => res.json())
-      .then((data) => {
-        setProjects(data);
+    const fetchProjects = async () => {
+      try {
+        setLoadingProjects(true);
+        setError(null);
+        const response = await fetch("/api/projects");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        // Ensure we always set an array
+        setProjects(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Error fetching projects:", err);
+        setError(err instanceof Error ? err.message : "Failed to fetch projects");
+        setProjects([]); // Ensure we always have an array
+      } finally {
         setLoadingProjects(false);
-      })
-      .catch(() => setLoadingProjects(false));
+      }
+    };
+
+    fetchProjects();
   }, []);
 
   return (
@@ -167,6 +181,11 @@ export default function AdminDashboardClient({ session }: { session: Session }) 
               Manage your portfolio projects here.
             </p>
             <div className="w-full flex flex-col items-center gap-4">
+            {error && (
+              <div className="w-full p-4 mb-4 text-red-700 bg-red-100 rounded-lg dark:bg-red-900 dark:text-red-300">
+                <p className="text-center">{error}</p>
+              </div>
+            )}
             <a
               href="/admin/projects/new"
               className={`block w-full text-center py-3 rounded-lg font-bold text-lg shadow-md ${resolvedTheme === "light" ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-yellow-400 hover:bg-yellow-500 text-gray-900"}`}
